@@ -37,15 +37,15 @@ const login = async (req, res) => {
         console.log("trying to log in user with email: ", email);
         const result = await query("SELECT * FROM users WHERE email = $1", [email]);
         const user = result.rows[0];
-        console.log(user);
+        // console.log(user);
         if (!user) {
-            return res.status(400).json({ message: "Invalid credentials" });
+            return res.status(400).json({success:false, data:null, message: "Invalid credentials" });
         }
 
         // Check Password
         const isMatch = await bcrypt.compare(password, user.password_hash);
         if (!isMatch) {
-            return res.status(400).json({ message: "Invalid credentials" });
+            return res.status(400).json({success:false, data:null, message: "Invalid credentials" });
         }else{
             // console.log(user);
             generateToken(user.id, res);
@@ -60,7 +60,7 @@ const login = async (req, res) => {
 
     } catch (err) {
         console.error("Login Error:", err);
-        res.status(500).json({ message: "Server Error" });
+        res.status(500).json({success:false, data:null, message: "Server Error" });
     }
 };
 
@@ -83,7 +83,7 @@ const getProfile = async (req, res) => {
             message:"user profile fetched successfully."
         });
     } catch (err) {
-        res.status(500).json({ message: "Server Error" });
+        res.status(500).json({success:false, data:null, message: "Server Error" });
     }
 };
 
