@@ -7,9 +7,10 @@ const { Pool } = pg;
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false
-    }
+    // Add SSL for production
+    ssl: process.env.NODE_ENV === "production" 
+        ? { rejectUnauthorized: false } 
+        : false 
 });
 
 pool.connect((err, client, release) => {
