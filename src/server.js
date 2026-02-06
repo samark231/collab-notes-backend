@@ -23,8 +23,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/notes", noteRoutes);
 
 //health-check
-app.get("/", (req, res) => {
-    res.send("API is running");
+app.get("/api", (req, res) => {
+    res.send({success:true, data:null, message:"api is running."});
 });
 
 server.listen(PORT, async () => {

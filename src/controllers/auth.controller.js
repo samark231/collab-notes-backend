@@ -4,7 +4,7 @@ import { query } from "../lib/db.js";
 import { generateToken } from "../lib/utils.js";
 
 const signup = async (req, res) => {
-    const { username, email, password } = req.body;
+    const { firstName, lastName, username, email, password } = req.body;
 
     try {
         const userCheck = await query("SELECT * FROM users WHERE email = $1", [email]);
@@ -17,14 +17,13 @@ const signup = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         const newUser = await query(
-            "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email",
-            [username, email, hashedPassword]
+            "INSERT INTO users (firstName, lastName, username, email, password_hash) VALUES ($1, $2, $3, $4, $5) RETURNING id,firstName, lastName, username, email",
+            [firstName, lastName, username, email, hashedPassword]
         );
         if(newUser.rowCount>0){
-            generateToken(newUser.rows[0].id, res);
+           res.status(201).json({success:true, data: newUser.rows[0], message: "User created!", });
         }
-        res.status(201).json({success:true, data: newUser.rows[0], message: "User created!", });
-
+        
     } catch (err) {
         console.error("signup Error:", err);
         res.status(500).json({ success:false, data: null, message: "Server Error" });
@@ -35,10 +34,10 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        //Find User
+        console.log("trying to log in user with email: ", email);
         const result = await query("SELECT * FROM users WHERE email = $1", [email]);
         const user = result.rows[0];
-
+        console.log(user);
         if (!user) {
             return res.status(400).json({ message: "Invalid credentials" });
         }
@@ -51,10 +50,12 @@ const login = async (req, res) => {
             // console.log(user);
             generateToken(user.id, res);
         }
-
-        res.json({ 
+        const payload = { id: user.id, username: user.username, email: user.email, firstName:user.firstname, lastName:user.lastname };
+        // console.log(payload);
+        res.status(200).json({ 
+            success:true,
             message: "Login successful", 
-            user: { id: user.id, username: user.username, email: user.email } 
+            data: payload
         });
 
     } catch (err) {
@@ -65,18 +66,20 @@ const login = async (req, res) => {
 
 const logout = (req, res) => {
     // To logout, we just clear the cookie
-    res.clearCookie("token");
-    res.json({ message: "Logged out successfully" });
+    res.clearCookie("jwt");
+    res.json({ success:true, data: null, message: "Logged out successfully" });
 };
 
 const getProfile = async (req, res) => {
     // We can access req.userId because the middleware put it there!
     try {
-        const user = await query("SELECT id, username, email FROM users WHERE id = $1", [req.userId]);
-        console.log(user.rows);
+        const users = await query("SELECT id, username, email,firstname,lastname FROM users WHERE id = $1", [req.userId]);
+        const user = users.rows[0];
+        const payload = { id: user.id, username: user.username, email: user.email, firstName:user.firstname, lastName:user.lastname };
+        console.log(payload);
         res.send({
             success:true,
-            data:user.rows[0],
+            data:payload,
             message:"user profile fetched successfully."
         });
     } catch (err) {

@@ -9,6 +9,6 @@ router.post("/login", login);
 router.post("/logout", logout);
 
 //protected route
-router.get("/profile", verifyToken, getProfile); 
+router.get("/check-auth", verifyToken, getProfile); 
 
 export default router;

@@ -6,6 +6,8 @@ const createTables = async () => {
         await query(`
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
+                firstName VARCHAR(50),
+                lastName VARCHAR(50),
                 username VARCHAR(50) NOT NULL,
                 email VARCHAR(100) UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,

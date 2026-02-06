@@ -57,7 +57,7 @@ const getNoteById = async (req, res) => {
             return res.status(403).json({ message: "Access Denied" });
         }
 
-        res.json(note);
+        res.json({success:true, data:note, message:"note created successfully"});
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Server Error" });
@@ -96,7 +96,7 @@ const updateNote = async (req, res) => {
             [title, content, id]
         );
 
-        res.json(updateResult.rows[0]);
+        res.json({success:true, data:updateResult.rows[0], message:"note created successfully"});
 
     } catch (err) {
         console.error(err);
