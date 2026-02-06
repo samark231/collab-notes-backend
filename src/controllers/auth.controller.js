@@ -76,7 +76,7 @@ const getProfile = async (req, res) => {
         const users = await query("SELECT id, username, email,firstname,lastname FROM users WHERE id = $1", [req.userId]);
         const user = users.rows[0];
         const payload = { id: user.id, username: user.username, email: user.email, firstName:user.firstname, lastName:user.lastname };
-        console.log(payload);
+        // console.log(payload);
         res.send({
             success:true,
             data:payload,
