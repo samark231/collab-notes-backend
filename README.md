@@ -37,6 +37,10 @@ PORT=5000
 # Database Connection String
 DATABASE_URL=your_database_url
 
+# Frontend Url for cors
+CLIENT_URL= [https://collab-notes-frontend.onrender.com/,"http://localhost:5173"]
+
+
 # Security Secrets
 JWT_SECRET=your_super_secret_string_here
 
@@ -71,7 +75,7 @@ Server runs on: http://localhost:5000
 - `POST /api/auth/signup` – Register a new user
 - `POST /api/auth/login` – Login and set secure cookie
 - `POST /api/auth/logout` – Clear auth cookie
-- `GET /api/auth/profile` – Get current logged-in user
+- `GET /api/auth/check-auth` – Get current logged-in user
 
 ### 📝 Notes Management
 - `GET /api/notes` – Fetch all notes (Owned + Shared)
