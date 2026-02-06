@@ -76,9 +76,7 @@ const getNoteById = async (req, res) => {
         res.status(500).json({ message: "Server Error" });
     }
 };
-
 const updateNote = async (req, res) => {
-
     try {
         const { id } = req.params;
         const { title, content } = req.body;
@@ -86,7 +84,7 @@ const updateNote = async (req, res) => {
         const noteResult = await query("SELECT * FROM notes WHERE id = $1", [id]);
         const note = noteResult.rows[0];
 
-        if (!note) return res.status(404).json({success:false, data:null, message: "Note not found" });
+        if (!note) return res.status(404).json({ success:false, data:null, message: "Note not found" });
 
         const isOwner = note.owner_id === req.userId;
         
@@ -94,10 +92,11 @@ const updateNote = async (req, res) => {
             "SELECT role FROM collaborators WHERE note_id = $1 AND user_id = $2", 
             [id, req.userId]
         );
+        
         const isEditor = collabResult.rows.length > 0 && collabResult.rows[0].role === 'EDITOR';
 
         if (!isOwner && !isEditor) {
-            return res.status(403).json({ success:false, data:null,message: "You do not have permission to edit this note" });
+            return res.status(403).json({ success:false, data:null, message: "You do not have permission to edit this note" });
         }
 
         const updateResult = await query(
@@ -110,14 +109,21 @@ const updateNote = async (req, res) => {
             [title, content, id]
         );
 
-        res.json({success:true, data:updateResult.rows[0], message:"note updated successfully"});
+        let role = 'VIEWER'; 
+        if (isOwner) role = 'OWNER';
+        else if (isEditor) role = 'EDITOR';
+        const finalNote = { 
+            ...updateResult.rows[0], 
+            access_role: role 
+        };
+
+        res.json({ success:true, data: finalNote, message: "Note updated successfully" });
 
     } catch (err) {
         console.error(err);
-        res.status(500).json({ success:false, data:null,message: "Server Error" });
+        res.status(500).json({ success:false, data:null, message: "Server Error" });
     }
 };
-
 const deleteNote = async (req, res) => {
     const { id } = req.params;
 
